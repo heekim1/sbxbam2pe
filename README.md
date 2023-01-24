@@ -8,8 +8,8 @@
 
 ## Build
 
-1. git clone git@ghe-rss.roche.com:kimh89/sbxbam2pe.git
-2. got sbxbam2pe
+1. git clone https://github.com/heekim1/sbxbam2pe.git
+2. go to sbxbam2pe
 3. mvn clean package
 
 - bam2pe.jar will be located at ./target dir.
