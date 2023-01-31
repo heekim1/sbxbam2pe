@@ -7,9 +7,12 @@ import picocli.CommandLine;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.zip.GZIPOutputStream;
 
 
 public class Main implements Runnable{
@@ -42,21 +45,23 @@ public class Main implements Runnable{
      * @see Thread#run()
      */
     public void run() {
-        final File file1 = new File(outputDir + "/" + outputPrefix+"R1.fastq");
-        final File file2 = new File(outputDir + "/" + outputPrefix+"R2.fastq");
+        final File file1 = new File(outputDir + "/" + outputPrefix+"R1.fastq.gz");
+        final File file2 = new File(outputDir + "/" + outputPrefix+"R2.fastq.gz");
 
         try (SamReader reader = SamReaderFactory.makeDefault().open(inputBam)) {
-            BufferedWriter writer1 = new BufferedWriter(new FileWriter(file1));
-            BufferedWriter writer2 = new BufferedWriter(new FileWriter(file2));
+            GZIPOutputStream gos1 = new GZIPOutputStream(new FileOutputStream(file1));
+            GZIPOutputStream gos2 = new GZIPOutputStream(new FileOutputStream(file2));
 
             Iterator<SAMRecord> iter = reader.iterator();
             while (iter.hasNext()) {
                 SAMRecord record = iter.next();
                 String r1 = convertSAMRecordToR1(record);
                 String r2 = convertSAMRecordToR2(record);
-                writer1.write(r1);
-                writer2.write(r2);
+                gos1.write(r1.getBytes(StandardCharsets.UTF_8));
+                gos2.write(r2.getBytes(StandardCharsets.UTF_8));
             }
+            gos1.close();
+            gos2.close();
 
         } catch (final Exception e) {
             System.out.println(e.getMessage());
